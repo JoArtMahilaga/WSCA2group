@@ -1,16 +1,17 @@
 <?php
+global $conn;
 session_start();
 
 // Include the database connection
-global $conn;
-include('db.php');
+require_once 'db.php';  // Make sure to have your db.php set up
+require_once 'libs/php-jwt-main/src/JWT.php';  // Include the JWT library
 
+use \Firebase\JWT\JWT;
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Get form data
     $username = $_POST['username'];
     $password = $_POST['password'];
-
 
     // Prepare the SQL statement to prevent SQL injection
     $stmt = $conn->prepare("SELECT * FROM users WHERE username = ?");
@@ -18,34 +19,42 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt->execute();
     $result = $stmt->get_result();
 
-
     // Check if the user exists
     if ($result->num_rows > 0) {
         // Fetch the user data
         $user = $result->fetch_assoc();
 
-        // Verify the password using password_hash
+        // Verify the password
         if (password_verify($password, $user['password'])) {
-            // Password is correct, create a session
-            $_SESSION['user_id'] = $user['id']; // Save the user ID in the session
-            $_SESSION['username'] = $user['username']; // Save the username
+            // Create a JWT token if the password is correct
+            $key = "your_secret_key";  // Secret key for encoding/decoding JWT
+            $payload = array(
+                "iss" => "http://yourdomain.com",  // Issuer
+                "aud" => "http://yourdomain.com",  // Audience
+                "iat" => time(),  // Issued at
+                "exp" => time() + 3600,  // Expiration time (1 hour)
+                "username" => $user['username']  // Store the username in the payload
+            );
 
-            echo "Login successful!";
-            // Redirect to the homepage
+            // Encode the payload to create JWT
+            // Correctly pass all required arguments: $payload, $key, and $alg
+            $jwt = JWT::encode($payload, $key, 'HS256');  // Specifying 'HS256' as the algorithm
+
+            // Store the JWT in the session or send it as a response
+            $_SESSION['jwt'] = $jwt;
+//            echo "Login successful! JWT: " . $jwt;  // For demonstration purposes
             header("Location: index.php");
-            exit();
         } else {
-            echo "Login failed!";
-            // Password is incorrect, set error message in session
-            $_SESSION['error_message'] = "Invalid username or password.";
+            echo "Invalid username or password.";
+            exit();
         }
     } else {
-        // User not found, set error message in session
-        $_SESSION['error_message'] = "Invalid username or password.";
+        echo "User not found.";
+        exit();
     }
 
     // Close the statement and the connection
     $stmt->close();
     $conn->close();
 }
-
+?>
