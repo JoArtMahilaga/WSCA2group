@@ -1,12 +1,27 @@
-<?php session_start(); // Start the session to check if the user is logged in ?>
+<?php
+session_start();
+require_once('utils/jwt_utils.php'); // Include the JWT utility file
+
+// Check if there's a JWT in the session or request (adjust as necessary)
+$jwt = isset($_SESSION['jwt']) ? $_SESSION['jwt'] : null;
+
+// Decode the JWT to get the payload (if JWT exists)
+$userData = null;
+if ($jwt) {
+    $userData = decode_jwt($jwt); // Decode the JWT to get user data
+}
+
+// Extract username if the user is logged in
+$username = $userData ? $userData['username'] : null;
+?>
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
         <!-- If user is logged in, display their username. Otherwise, display the default website name. -->
         <a class="navbar-brand" href="index.php">
             <?php
-            if (isset($_SESSION['username'])) {
-                echo "Welcome, " . $_SESSION['username']; // Display username if logged in
+            if ($username) {
+                echo "Welcome, " . htmlspecialchars($username); // Display username if logged in
             } else {
                 echo "My Website"; // Default text if not logged in
             }
@@ -20,14 +35,17 @@
                 <li class="nav-item">
                     <a class="nav-link" href="index.php">Home</a>
                 </li>
-                <?php if (!isset($_SESSION['username'])) { // Only show Login and Register if not logged in ?>
+                <?php if (!$username) { // Only show Login and Register if not logged in ?>
                     <li class="nav-item">
                         <a class="nav-link" href="login.php">Login</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="register.php">Register</a>
                     </li>
-                <?php } else { // If logged in, show Logout ?>
+                <?php } else { // If logged in, show Dashboard and Logout ?>
+                    <li class="nav-item">
+                        <a class="nav-link" href="dashboard.php">Dashboard</a> <!-- Dashboard link -->
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="logout.php">Logout</a>
                     </li>
