@@ -1,4 +1,6 @@
-<?php include('navbar.php'); ?>
+<?php
+include('navbar.php');
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -12,6 +14,15 @@
 
 <main class="container mt-5 flex-grow-1">
     <h2 class="text-center text-primary">Login</h2>
+
+    <?php
+    // Display error message if set
+    if (isset($_SESSION['error_message'])) {
+        echo '<div class="alert alert-danger">' . $_SESSION['error_message'] . '</div>';
+        unset($_SESSION['error_message']);  // Clear error message after showing it
+    }
+    ?>
+
     <form action="login_process.php" method="POST" class="w-50 mx-auto">
         <div class="mb-3">
             <label for="username" class="form-label">Username</label>

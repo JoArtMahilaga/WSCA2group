@@ -1,0 +1,11 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: WEB_SERVICES_CA
+    environment:
+      MYSQL_ROOT_PASSWORD: mysql  # Set the root password
+      MYSQL_DATABASE: WEB_SERVICES_CA  # Create the initial database
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql-data:/var/lib/mysql

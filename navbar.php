@@ -1,7 +1,17 @@
-<!-- navbar.php -->
+<?php session_start(); // Start the session to check if the user is logged in ?>
+
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="index.php">My Website</a>
+        <!-- If user is logged in, display their username. Otherwise, display the default website name. -->
+        <a class="navbar-brand" href="index.php">
+            <?php
+            if (isset($_SESSION['username'])) {
+                echo "Welcome, " . $_SESSION['username']; // Display username if logged in
+            } else {
+                echo "My Website"; // Default text if not logged in
+            }
+            ?>
+        </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -10,12 +20,18 @@
                 <li class="nav-item">
                     <a class="nav-link" href="index.php">Home</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="login.php">Login</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="register.php">Register</a>
-                </li>
+                <?php if (!isset($_SESSION['username'])) { // Only show Login and Register if not logged in ?>
+                    <li class="nav-item">
+                        <a class="nav-link" href="login.php">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="register.php">Register</a>
+                    </li>
+                <?php } else { // If logged in, show Logout ?>
+                    <li class="nav-item">
+                        <a class="nav-link" href="logout.php">Logout</a>
+                    </li>
+                <?php } ?>
             </ul>
         </div>
     </div>
